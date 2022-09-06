@@ -46,7 +46,7 @@ class ResultHandler
      */
     private function submit(RunResult $runResult, array $bulkResults): Response
     {
-        $runId = $runResult->getRunId() ?: $this->createRunId($runResult->getProjectCode());
+        $runId = $runResult->getRunId() ?: $this->createRunId($runResult->getProjectCode(), $runResult->getEnvironmentId());
 
         $this->logger->write("publishing results for run #{$runId}... ");
 
@@ -72,12 +72,13 @@ class ResultHandler
     /**
      * @throws ApiException
      */
-    public function createRunId($projectCode): int
+    public function createRunId($projectCode, $environmentId): int
     {
         $runName = 'Automated run ' . date('Y-m-d H:i:s');
         $runBody = new RunCreate([
             "title" => $runName,
             'isAutotest' => true,
+            'environmentId' => $environmentId,
         ]);
 
         $this->logger->write("creating run '{$runName}'... ");

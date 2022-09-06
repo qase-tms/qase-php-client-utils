@@ -8,19 +8,26 @@ class RunResult
 {
     private string $projectCode;
     private ?int $runId;
+    private ?int $environmentId;
     private bool $completeRunAfterSubmit;
     private array $results = [];
 
-    public function __construct(string $projectCode, ?int $runId, bool $completeRunAfterSubmit)
+    public function __construct(string $projectCode, ?int $runId, bool $completeRunAfterSubmit, ?int $environmentId)
     {
         $this->projectCode = $projectCode;
         $this->runId = $runId;
+        $this->environmentId = $environmentId;
         $this->completeRunAfterSubmit = $completeRunAfterSubmit;
     }
 
     public function getRunId(): ?int
     {
         return $this->runId;
+    }
+
+    public function getEnvironmentId(): ?int
+    {
+        return $this->environmentId;
     }
 
     public function getProjectCode(): string

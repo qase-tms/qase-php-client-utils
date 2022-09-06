@@ -6,6 +6,7 @@ namespace Qase\PhpClientUtils;
 
 use GuzzleHttp\Psr7\Request;
 use Qase\Client\Api\CasesApi;
+use Qase\Client\Api\EnvironmentsApi;
 use Qase\Client\Api\ProjectsApi;
 use Qase\Client\Api\ResultsApi;
 use Qase\Client\Api\RunsApi;
@@ -15,6 +16,7 @@ class Repository
 {
     private RunsApi $runsApi;
     private ProjectsApi $projectsApi;
+    private EnvironmentsApi $environmentsApi;
     private ResultsApi $resultsApi;
 
     /**
@@ -31,6 +33,14 @@ class Repository
     public function getProjectsApi(): ProjectsApi
     {
         return $this->projectsApi;
+    }
+
+    /**
+     * @return EnvironmentsApi
+     */
+    public function getEnvironmentsApi(): EnvironmentsApi
+    {
+        return $this->environmentsApi;
     }
 
     /**
@@ -55,6 +65,7 @@ class Repository
 
         $this->runsApi = new RunsApi($client, $config);
         $this->projectsApi = new ProjectsApi($client, $config);
+        $this->environmentsApi = new EnvironmentsApi($client, $config);
         $this->resultsApi = new ResultsApi($client, $config);
     }
 }
