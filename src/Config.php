@@ -17,6 +17,7 @@ class Config
     private ?string $baseUrl;
     private ?string $apiToken;
     private ?int $runId;
+    private ?int $environmentId;
     private ?string $rootSuiteTitle;
     private bool $completeRunAfterSubmit;
 
@@ -33,6 +34,7 @@ class Config
         $this->baseUrl = getenv('QASE_API_BASE_URL') ?: null;
         $this->apiToken = getenv('QASE_API_TOKEN') ?: null;
         $this->projectCode = getenv('QASE_PROJECT_CODE') ?: null;
+        $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
         $this->rootSuiteTitle = getenv('QASE_ROOT_SUITE_TITLE') ?: null;
 
         $this->runId = getenv('QASE_RUN_ID') ? (int)getenv('QASE_RUN_ID') : null;
@@ -47,6 +49,11 @@ class Config
     public function getProjectCode(): ?string
     {
         return $this->projectCode;
+    }
+
+    public function getEnvironmentId(): ?int
+    {
+        return $this->environmentId;
     }
 
     public function getBaseUrl(): ?string
