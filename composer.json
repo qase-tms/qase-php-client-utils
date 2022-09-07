@@ -7,5 +7,10 @@
             "Qase\\PhpClientUtils\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "require": {}
 }
