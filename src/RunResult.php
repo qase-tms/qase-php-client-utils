@@ -12,7 +12,7 @@ class RunResult
     private bool $completeRunAfterSubmit;
     private array $results = [];
 
-    public function __construct(string $projectCode, ?int $runId, bool $completeRunAfterSubmit, ?int $environmentId)
+    public function __construct(string $projectCode, ?int $runId, bool $completeRunAfterSubmit, ?int $environmentId = null)
     {
         $this->projectCode = $projectCode;
         $this->runId = $runId;
