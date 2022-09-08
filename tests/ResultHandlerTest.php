@@ -24,7 +24,7 @@ class ResultHandlerTest extends TestCase
      */
     public function testSuccessfulHandling(?int $runId, string $testName): void
     {
-        $runResult = new RunResult('PRJ', $runId, true);
+        $runResult = new RunResult('PRJ', $runId, true, null);
         $runResult->addResult([
             'status' => 'passed',
             'time' => 123,
@@ -39,7 +39,7 @@ class ResultHandlerTest extends TestCase
 
     public function testHandlingWithNoResults(): void
     {
-        $runResult = new RunResult('PRJ', 1, true);
+        $runResult = new RunResult('PRJ', 1, true, null);
 
         $response = $this->runResultsHandler($runResult);
 
