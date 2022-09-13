@@ -18,6 +18,7 @@ class Config
     private ?string $apiToken;
     private ?int $runId;
     private ?int $environmentId;
+    private bool $isLoggingEnabled;
     private ?string $rootSuiteTitle;
     private bool $completeRunAfterSubmit;
 
@@ -35,6 +36,7 @@ class Config
         $this->apiToken = getenv('QASE_API_TOKEN') ?: null;
         $this->projectCode = getenv('QASE_PROJECT_CODE') ?: null;
         $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
+        $this->isLoggingEnabled = (getenv('QASE_LOGGING') === '1' || getenv("QASE_LOGGING") === false);
         $this->rootSuiteTitle = getenv('QASE_ROOT_SUITE_TITLE') ?: null;
 
         $this->runId = getenv('QASE_RUN_ID') ? (int)getenv('QASE_RUN_ID') : null;
@@ -54,6 +56,11 @@ class Config
     public function getEnvironmentId(): ?int
     {
         return $this->environmentId;
+    }
+
+    public function isLoggingEnabled(): bool
+    {
+        return $this->isLoggingEnabled;
     }
 
     public function getBaseUrl(): ?string
