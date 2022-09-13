@@ -10,9 +10,9 @@ class ResultsConverter
 {
     private const SUITE_TITLE_SEPARATOR = "\t";
 
-    private ConsoleLogger $logger;
+    private LoggerInterface $logger;
 
-    public function __construct(ConsoleLogger $logger)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
