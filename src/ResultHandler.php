@@ -12,11 +12,11 @@ use Qase\Client\Model\RunCreate;
 class ResultHandler
 {
 
-    private ConsoleLogger $logger;
+    private LoggerInterface $logger;
     private Repository $repo;
     private ResultsConverter $resultsConverter;
 
-    public function __construct(Repository $repo, ResultsConverter $resultsConverter, ConsoleLogger $logger)
+    public function __construct(Repository $repo, ResultsConverter $resultsConverter, LoggerInterface $logger)
     {
         $this->logger = $logger;
         $this->repo = $repo;
