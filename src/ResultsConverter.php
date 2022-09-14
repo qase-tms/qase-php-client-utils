@@ -28,6 +28,7 @@ class ResultsConverter
                 'timeMs' => (int)($item['time'] * 1000.0),
                 'stacktrace' => $item['stacktrace'],
                 'comment' => "{$item['full_test_name']} in {$item['time']}s",
+                'defect' => $item['defect'] ?? false,
             ];
 
             [$namespace, $methodName] = $this->explodeFullTestName($item['full_test_name']);
