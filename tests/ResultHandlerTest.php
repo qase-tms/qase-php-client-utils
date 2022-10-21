@@ -11,6 +11,7 @@ use Qase\Client\Api\ResultsApi;
 use Qase\Client\Api\RunsApi;
 use Qase\Client\Model\IdResponse;
 use Qase\Client\Model\IdResponseAllOfResult;
+use Qase\PhpClientUtils\Config;
 use Qase\PhpClientUtils\ConsoleLogger;
 use Qase\PhpClientUtils\Repository;
 use Qase\PhpClientUtils\ResultHandler;
@@ -24,7 +25,8 @@ class ResultHandlerTest extends TestCase
      */
     public function testSuccessfulHandling(?int $runId, string $testName): void
     {
-        $runResult = new RunResult('PRJ', $runId, true, null);
+        $config = $this->createConfig('PRJ', $runId);
+        $runResult = new RunResult($config);
         $runResult->addResult([
             'status' => 'passed',
             'time' => 123,
@@ -39,7 +41,8 @@ class ResultHandlerTest extends TestCase
 
     public function testHandlingWithNoResults(): void
     {
-        $runResult = new RunResult('PRJ', 1, true, null);
+        $config = $this->createConfig('PRJ', 1);
+        $runResult = new RunResult($config);
 
         $response = $this->runResultsHandler($runResult);
 
@@ -89,6 +92,16 @@ class ResultHandlerTest extends TestCase
     private function createConverter(): ResultsConverter
     {
         return new ResultsConverter($this->createLogger());
+    }
+
+    private function createConfig(string $projectCode, ?int $runId): Config
+    {
+        $config = $this->getMockBuilder(Config::class)->getMock();
+        $config->method('getRunId')->willReturn($runId);
+        $config->method('getProjectCode')->willReturn($projectCode);
+        $config->method('getEnvironmentId')->willReturn(null);
+
+        return $config;
     }
 
     private function runResultsHandler(RunResult $runResult): ?\Qase\Client\Model\Response

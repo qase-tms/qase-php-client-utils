@@ -14,6 +14,7 @@ class Config
 
     private bool $isReportingEnabled;
     private ?string $projectCode;
+    private string $runDescription;
     private ?string $baseUrl;
     private ?string $apiToken;
     private ?int $runId;
@@ -35,12 +36,15 @@ class Config
         $this->baseUrl = getenv('QASE_API_BASE_URL') ?: null;
         $this->apiToken = getenv('QASE_API_TOKEN') ?: null;
         $this->projectCode = getenv('QASE_PROJECT_CODE') ?: null;
+        $this->runDescription = getenv('QASE_RUN_DESCRIPTION') ?: 'PHPUnit automated run';
         $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
         $this->isLoggingEnabled = getenv('QASE_LOGGING') === '1' || getenv("QASE_LOGGING") === false;
         $this->rootSuiteTitle = getenv('QASE_ROOT_SUITE_TITLE') ?: null;
 
         $this->runId = getenv('QASE_RUN_ID') ? (int)getenv('QASE_RUN_ID') : null;
         $this->completeRunAfterSubmit = is_null($this->runId) || getenv('QASE_RUN_COMPLETE') === '1';
+
+        $this->validate();
     }
 
     public function isReportingEnabled(): bool
@@ -51,6 +55,11 @@ class Config
     public function getProjectCode(): ?string
     {
         return $this->projectCode;
+    }
+
+    public function getRunDescription(): string
+    {
+        return $this->runDescription;
     }
 
     public function getEnvironmentId(): ?int

@@ -6,38 +6,17 @@ namespace Qase\PhpClientUtils;
 
 class RunResult
 {
-    private string $projectCode;
-    private ?int $runId;
-    private ?int $environmentId;
-    private bool $completeRunAfterSubmit;
+    private Config $config;
     private array $results = [];
 
-    public function __construct(string $projectCode, ?int $runId, bool $completeRunAfterSubmit, ?int $environmentId = null)
+    public function __construct(Config $config)
     {
-        $this->projectCode = $projectCode;
-        $this->runId = $runId;
-        $this->environmentId = $environmentId;
-        $this->completeRunAfterSubmit = $completeRunAfterSubmit;
+        $this->config = $config;
     }
 
-    public function getRunId(): ?int
+    public function getConfig(): Config
     {
-        return $this->runId;
-    }
-
-    public function getEnvironmentId(): ?int
-    {
-        return $this->environmentId;
-    }
-
-    public function getProjectCode(): string
-    {
-        return $this->projectCode;
-    }
-
-    public function getCompleteRunAfterSubmit(): bool
-    {
-        return $this->completeRunAfterSubmit;
+        return $this->config;
     }
 
     public function getResults(): array

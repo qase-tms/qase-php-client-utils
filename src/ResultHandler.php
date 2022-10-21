@@ -46,22 +46,30 @@ class ResultHandler
      */
     private function submit(RunResult $runResult, array $bulkResults): Response
     {
-        $runId = $runResult->getRunId() ?: $this->createRunId($runResult->getProjectCode(), $runResult->getEnvironmentId());
+        if ($runResult->getConfig()->getRunId()) {
+            $runId = $runResult->getConfig()->getRunId();
+        } else {
+            $runId = $this->createRunId(
+                $runResult->getConfig()->getProjectCode(),
+                $runResult->getConfig()->getEnvironmentId(),
+                $runResult->getConfig()->getRunDescription()
+            );
+        }
 
         $this->logger->write("publishing results for run #{$runId}... ");
 
         $response = $this->repo->getResultsApi()->createResultBulk(
-            $runResult->getProjectCode(),
+            $runResult->getConfig()->getProjectCode(),
             $runId,
             new ResultCreateBulk(['results' => $bulkResults])
         );
 
         $this->logger->writeln('OK', '');
 
-        if ($runResult->getCompleteRunAfterSubmit()) {
+        if ($runResult->getConfig()->getCompleteRunAfterSubmit()) {
             $this->logger->write("completing run #{$runId}... ");
 
-            $this->repo->getRunsApi()->completeRun($runResult->getProjectCode(), $runId);
+            $this->repo->getRunsApi()->completeRun($runResult->getConfig()->getProjectCode(), $runId);
 
             $this->logger->writeln('OK', '');
         }
@@ -72,11 +80,12 @@ class ResultHandler
     /**
      * @throws ApiException
      */
-    public function createRunId($projectCode, $environmentId): int
+    public function createRunId(?string $projectCode, ?int $environmentId, string $description): int
     {
         $runName = 'Automated run ' . date('Y-m-d H:i:s');
         $runBody = new RunCreate([
             "title" => $runName,
+            "description" => $description,
             'isAutotest' => true,
             'environmentId' => $environmentId,
         ]);
