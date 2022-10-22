@@ -39,16 +39,6 @@ class ResultHandlerTest extends TestCase
         $this->assertTrue($response->getStatus());
     }
 
-    public function testHandlingWithNoResults(): void
-    {
-        $config = $this->createConfig('PRJ', 1);
-        $runResult = new RunResult($config);
-
-        $response = $this->runResultsHandler($runResult);
-
-        $this->assertNull($response);
-    }
-
     public function runIdDataProvider(): array
     {
         return [
@@ -56,6 +46,45 @@ class ResultHandlerTest extends TestCase
             [10, 'testAwesomeStuff'],
             [null, 'testImportantStuff']
         ];
+    }
+
+    public function testHandlingWithNoResults(): void
+    {
+        $config = $this->createConfig('PRJ');
+        $runResult = new RunResult($config);
+
+        $response = $this->runResultsHandler($runResult);
+
+        $this->assertNull($response);
+    }
+
+    public function testRunDescription(): void
+    {
+        $config = $this->createConfig('PRG');
+        $runResult = new RunResult($config);
+        $runResult->addResult([
+            'status' => 'passed',
+            'time' => 123,
+            'stacktrace' => '',
+            'full_test_name' => SomeTest::class . '::' . 'testImportantStuff',
+        ]);
+        $testingDescription = 'testing Description';
+
+        $repository = $this->createRepository();
+        $repository->getRunsApi()->expects($this->once())
+            ->method('createRun')
+            ->with(
+                $this->anything(),
+                $this->callback(function ($runBody) use ($testingDescription) {
+                    return isset($runBody) && $runBody->getDescription() === $testingDescription;
+                })
+            );
+        $handler = new ResultHandler(
+            $repository,
+            $this->createConverter(),
+            $this->createLogger()
+        );
+        $handler->createRunId('PRG', null, $testingDescription);
     }
 
     private function createRepository(): Repository
@@ -94,7 +123,7 @@ class ResultHandlerTest extends TestCase
         return new ResultsConverter($this->createLogger());
     }
 
-    private function createConfig(string $projectCode, ?int $runId): Config
+    private function createConfig(string $projectCode, ?int $runId = null): Config
     {
         $config = $this->getMockBuilder(Config::class)->getMock();
         $config->method('getRunId')->willReturn($runId);
