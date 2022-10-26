@@ -14,15 +14,13 @@ class ConfigTest extends TestCase
         putenv('QASE_PROJECT_CODE=hi');
         putenv('QASE_API_BASE_URL=hi');
         putenv('QASE_API_TOKEN=hi');
-        putenv('QASE_RUN_DESCRIPTION=Qase run description');
     }
 
-    public function testDefaultRunDescription()
+    public function testRunDescription()
     {
-        // Unset environment variable
-        putenv('QASE_RUN_DESCRIPTION');
+        putenv('QASE_RUN_DESCRIPTION=Qase run description');
         $config = new Config('FakeReporter');
-        $this->assertEquals('FakeReporter automated run', $config->getRunDescription());
+        $this->assertEquals('Qase run description', $config->getRunDescription());
     }
 
     public function testEmptyRunDescription()
@@ -33,9 +31,9 @@ class ConfigTest extends TestCase
         $this->assertEquals('', $config->getRunDescription());
     }
 
-    public function testRunDescription()
+    public function testDefaultRunDescription()
     {
         $config = new Config('FakeReporter');
-        $this->assertEquals('Qase run description', $config->getRunDescription());
+        $this->assertEquals('FakeReporter automated run', $config->getRunDescription());
     }
 }
