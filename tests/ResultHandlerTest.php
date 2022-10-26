@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Qase\Client\Api\ResultsApi;
 use Qase\Client\Api\RunsApi;
+use Qase\Client\ApiException;
 use Qase\Client\Model\IdResponse;
 use Qase\Client\Model\IdResponseAllOfResult;
 use Qase\PhpClientUtils\Config;
@@ -25,8 +26,7 @@ class ResultHandlerTest extends TestCase
      */
     public function testSuccessfulHandling(?int $runId, string $testName): void
     {
-        $config = $this->createConfig('PRJ', $runId);
-        $runResult = new RunResult($config);
+        $runResult = new RunResult($this->createConfig('PRJ', $runId));
         $runResult->addResult([
             'status' => 'passed',
             'time' => 123,
@@ -50,24 +50,18 @@ class ResultHandlerTest extends TestCase
 
     public function testHandlingWithNoResults(): void
     {
-        $config = $this->createConfig('PRJ');
-        $runResult = new RunResult($config);
+        $runResult = new RunResult($this->createConfig());
 
         $response = $this->runResultsHandler($runResult);
 
         $this->assertNull($response);
     }
 
+    /**
+     * @throws ApiException
+     */
     public function testRunDescription(): void
     {
-        $config = $this->createConfig('PRG');
-        $runResult = new RunResult($config);
-        $runResult->addResult([
-            'status' => 'passed',
-            'time' => 123,
-            'stacktrace' => '',
-            'full_test_name' => SomeTest::class . '::' . 'testImportantStuff',
-        ]);
         $testingDescription = 'testing Description';
 
         $repository = $this->createRepository();
@@ -76,7 +70,9 @@ class ResultHandlerTest extends TestCase
             ->with(
                 $this->anything(),
                 $this->callback(function ($runBody) use ($testingDescription) {
-                    return isset($runBody) && $runBody->getDescription() === $testingDescription;
+                    $message = "Run description '{$testingDescription}' was not passed correctly.";
+                    self::assertSame($testingDescription, $runBody->getDescription(), $message);
+                    return true;
                 })
             );
         $handler = new ResultHandler(
@@ -123,9 +119,10 @@ class ResultHandlerTest extends TestCase
         return new ResultsConverter($this->createLogger());
     }
 
-    private function createConfig(string $projectCode, ?int $runId = null): Config
+    private function createConfig(string $projectCode = 'PRJ', ?int $runId = null): Config
     {
-        $config = $this->getMockBuilder(Config::class)->getMock();
+        $config = $this->getMockBuilder(Config::class)
+        ->setConstructorArgs(['Reporter'])->getMock();
         $config->method('getRunId')->willReturn($runId);
         $config->method('getProjectCode')->willReturn($projectCode);
         $config->method('getEnvironmentId')->willReturn(null);

@@ -23,7 +23,7 @@ class Config
     private ?string $rootSuiteTitle;
     private bool $completeRunAfterSubmit;
 
-    public function __construct()
+    public function __construct(string $reporterName)
     {
         foreach ($_ENV as $envName => $envValue) {
             if (strpos($envName, "QASE_") === 0 && getenv($envName) === false) {
@@ -36,7 +36,8 @@ class Config
         $this->baseUrl = getenv('QASE_API_BASE_URL') ?: null;
         $this->apiToken = getenv('QASE_API_TOKEN') ?: null;
         $this->projectCode = getenv('QASE_PROJECT_CODE') ?: null;
-        $this->runDescription = getenv('QASE_RUN_DESCRIPTION') ?: 'PHPUnit automated run';
+        $this->runDescription = getenv('QASE_RUN_DESCRIPTION') ?: "{$reporterName} automated run";
+        $this->runDescription = getenv('QASE_RUN_DESCRIPTION') === '' ? '' : $this->getRunDescription();
         $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
         $this->isLoggingEnabled = getenv('QASE_LOGGING') === '1' || getenv("QASE_LOGGING") === false;
         $this->rootSuiteTitle = getenv('QASE_ROOT_SUITE_TITLE') ?: null;
