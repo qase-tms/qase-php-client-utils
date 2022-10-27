@@ -70,9 +70,7 @@ class ResultHandlerTest extends TestCase
             ->with(
                 $this->anything(),
                 $this->callback(function ($runBody) use ($testingDescription) {
-                    $message = "Run description '{$testingDescription}' was not passed correctly.";
-                    self::assertSame($testingDescription, $runBody->getDescription(), $message);
-                    return true;
+                    return $testingDescription === $runBody->getDescription();
                 })
             );
         $handler = new ResultHandler(
