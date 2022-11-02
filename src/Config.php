@@ -13,10 +13,10 @@ class Config
     ];
 
     private bool $isReportingEnabled;
-    private ?string $projectCode;
+    private string $projectCode;
     private string $runDescription;
-    private ?string $baseUrl;
-    private ?string $apiToken;
+    private string $baseUrl;
+    private string $apiToken;
     private ?int $runId;
     private ?int $environmentId;
     private bool $isLoggingEnabled;
@@ -31,11 +31,13 @@ class Config
             }
         }
 
+        $this->validate();
+
         $this->isReportingEnabled = getenv('QASE_REPORT') === '1';
 
-        $this->baseUrl = getenv('QASE_API_BASE_URL') ?: null;
-        $this->apiToken = getenv('QASE_API_TOKEN') ?: null;
-        $this->projectCode = getenv('QASE_PROJECT_CODE') ?: null;
+        $this->baseUrl = getenv('QASE_API_BASE_URL');
+        $this->apiToken = getenv('QASE_API_TOKEN');
+        $this->projectCode = getenv('QASE_PROJECT_CODE');
         $this->runDescription = getenv('QASE_RUN_DESCRIPTION') ?: "{$reporterName} automated run";
         $this->runDescription = getenv('QASE_RUN_DESCRIPTION') === '' ? '' : $this->getRunDescription();
         $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
@@ -44,8 +46,6 @@ class Config
 
         $this->runId = getenv('QASE_RUN_ID') ? (int)getenv('QASE_RUN_ID') : null;
         $this->completeRunAfterSubmit = is_null($this->runId) || getenv('QASE_RUN_COMPLETE') === '1';
-
-        $this->validate();
     }
 
     public function isReportingEnabled(): bool
@@ -53,7 +53,7 @@ class Config
         return $this->isReportingEnabled;
     }
 
-    public function getProjectCode(): ?string
+    public function getProjectCode(): string
     {
         return $this->projectCode;
     }
@@ -73,12 +73,12 @@ class Config
         return $this->isLoggingEnabled;
     }
 
-    public function getBaseUrl(): ?string
+    public function getBaseUrl(): string
     {
         return $this->baseUrl;
     }
 
-    public function getApiToken(): ?string
+    public function getApiToken(): string
     {
         return $this->apiToken;
     }
@@ -100,7 +100,7 @@ class Config
 
     public function validate(): void
     {
-        if (!$this->getBaseUrl() || !$this->getApiToken() || !$this->getProjectCode()) {
+        if (!getenv('QASE_API_BASE_URL') || !getenv('QASE_API_TOKEN') || !getenv('QASE_PROJECT_CODE')) {
             throw new \LogicException(sprintf(
                 'The Qase PHPUnit reporter needs the following environment variables to be set: %s.',
                 implode(',', self::REQUIRED_PARAMS)
