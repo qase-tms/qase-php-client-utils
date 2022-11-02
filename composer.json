@@ -13,6 +13,7 @@
         }
     },
     "require": {
+        "php": "^7.4 || ^8.0",
         "qase/api": "v1.2.0"
     },
     "require-dev": {
