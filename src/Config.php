@@ -38,8 +38,7 @@ class Config
         $this->baseUrl = getenv('QASE_API_BASE_URL');
         $this->apiToken = getenv('QASE_API_TOKEN');
         $this->projectCode = getenv('QASE_PROJECT_CODE');
-        $this->runDescription = getenv('QASE_RUN_DESCRIPTION') ?: "{$reporterName} automated run";
-        $this->runDescription = getenv('QASE_RUN_DESCRIPTION') === '' ? '' : $this->getRunDescription();
+        $this->runDescription = $this->defineRunDescription($reporterName);
         $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
         $this->isLoggingEnabled = getenv('QASE_LOGGING') === '1' || getenv("QASE_LOGGING") === false;
         $this->rootSuiteTitle = getenv('QASE_ROOT_SUITE_TITLE') ?: null;
@@ -106,5 +105,14 @@ class Config
                 implode(',', self::REQUIRED_PARAMS)
             ));
         }
+    }
+
+    private function defineRunDescription(string $reporterName): string
+    {
+        if (getenv('QASE_RUN_DESCRIPTION') === '') {
+            return '';
+        }
+
+        return getenv('QASE_RUN_DESCRIPTION') ?: "{$reporterName} automated run";
     }
 }
