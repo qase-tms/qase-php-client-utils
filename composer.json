@@ -17,6 +17,7 @@
         "qase/api": "v1.2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0 || ^9.0"
+        "phpunit/phpunit": "^8.0 || ^9.0",
+        "ext-json": "*"
     }
 }

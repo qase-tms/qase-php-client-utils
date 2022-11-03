@@ -104,12 +104,15 @@ class Config
     {
         foreach (self::REQUIRED_PARAMS as $paramName) {
             if (!getenv($paramName)) {
-                throw new \LogicException(sprintf(
-                    'The Qase %s reporter needs the following environment variables to be set: %s.',
-                    $this->reporterName,
-                    implode(',', self::REQUIRED_PARAMS)
-                ));
+                $invalidParams[] = $paramName;
             }
+        }
+        if (!empty($invalidParams)) {
+            throw new \LogicException(sprintf(
+                'The Qase %s reporter needs the following environment variable(s) to be set: %s.',
+                $this->reporterName,
+                implode(', ', $invalidParams)
+            ));
         }
     }
 

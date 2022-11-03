@@ -43,12 +43,9 @@ class ConfigTest extends TestCase
     {
         // Unset required ENV variable
         putenv('QASE_API_TOKEN');
-        $this->expectExceptionMessage('reporter needs the following environment variables to be set');
-        new Config('FakeReporter');
-
         // Set empty required ENV variable
-        putenv('QASE_API_TOKEN=');
-        $this->expectExceptionMessage('reporter needs the following environment variables to be set');
+        putenv('QASE_API_BASE_URL=');
+        $this->expectExceptionMessage('The Qase FakeReporter reporter needs the following environment variable(s) to be set: QASE_API_BASE_URL, QASE_API_TOKEN.');
         new Config('FakeReporter');
     }
 }

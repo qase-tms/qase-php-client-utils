@@ -21,13 +21,6 @@ use Qase\PhpClientUtils\RunResult;
 
 class ResultHandlerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        putenv('QASE_PROJECT_CODE=hi');
-        putenv('QASE_API_BASE_URL=hi');
-        putenv('QASE_API_TOKEN=hi');
-    }
-
     /**
      * @dataProvider runIdDataProvider
      */
@@ -126,8 +119,7 @@ class ResultHandlerTest extends TestCase
 
     private function createConfig(string $projectCode = 'PRJ', ?int $runId = null): Config
     {
-        $config = $this->getMockBuilder(Config::class)
-        ->setConstructorArgs(['Reporter'])->getMock();
+        $config = $this->getMockBuilder(Config::class)->disableOriginalConstructor()->getMock();
         $config->method('getRunId')->willReturn($runId);
         $config->method('getProjectCode')->willReturn($projectCode);
         $config->method('getEnvironmentId')->willReturn(null);
