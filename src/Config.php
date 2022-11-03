@@ -12,6 +12,7 @@ class Config
         'QASE_API_TOKEN',
     ];
 
+    private string $reporterName;
     private bool $isReportingEnabled;
     private string $projectCode;
     private string $runDescription;
@@ -25,6 +26,8 @@ class Config
 
     public function __construct(string $reporterName)
     {
+        $this->reporterName = $reporterName;
+
         foreach ($_ENV as $envName => $envValue) {
             if (strpos($envName, "QASE_") === 0 && getenv($envName) === false) {
                 putenv($envName . '=' . $envValue);
@@ -38,7 +41,7 @@ class Config
         $this->baseUrl = getenv('QASE_API_BASE_URL');
         $this->apiToken = getenv('QASE_API_TOKEN');
         $this->projectCode = getenv('QASE_PROJECT_CODE');
-        $this->runDescription = $this->defineRunDescription($reporterName);
+        $this->runDescription = $this->defineRunDescription();
         $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
         $this->isLoggingEnabled = getenv('QASE_LOGGING') === '1' || getenv("QASE_LOGGING") === false;
         $this->rootSuiteTitle = getenv('QASE_ROOT_SUITE_TITLE') ?: null;
@@ -99,20 +102,23 @@ class Config
 
     public function validate(): void
     {
-        if (!getenv('QASE_API_BASE_URL') || !getenv('QASE_API_TOKEN') || !getenv('QASE_PROJECT_CODE')) {
-            throw new \LogicException(sprintf(
-                'The Qase PHPUnit reporter needs the following environment variables to be set: %s.',
-                implode(',', self::REQUIRED_PARAMS)
-            ));
+        foreach (self::REQUIRED_PARAMS as $paramName) {
+            if (!getenv($paramName)) {
+                throw new \LogicException(sprintf(
+                    'The Qase %s reporter needs the following environment variables to be set: %s.',
+                    $this->reporterName,
+                    implode(',', self::REQUIRED_PARAMS)
+                ));
+            }
         }
     }
 
-    private function defineRunDescription(string $reporterName): string
+    private function defineRunDescription(): string
     {
         if (getenv('QASE_RUN_DESCRIPTION') === '') {
             return '';
         }
 
-        return getenv('QASE_RUN_DESCRIPTION') ?: "{$reporterName} automated run";
+        return getenv('QASE_RUN_DESCRIPTION') ?: "{$this->reporterName} automated run";
     }
 }

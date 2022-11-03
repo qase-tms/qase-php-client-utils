@@ -33,7 +33,22 @@ class ConfigTest extends TestCase
 
     public function testDefaultRunDescription()
     {
+        // Unset ENV variable
+        putenv('QASE_RUN_DESCRIPTION');
         $config = new Config('FakeReporter');
         $this->assertEquals('FakeReporter automated run', $config->getRunDescription());
+    }
+
+    public function testRequiredParamsValidation()
+    {
+        // Unset required ENV variable
+        putenv('QASE_API_TOKEN');
+        $this->expectExceptionMessage('reporter needs the following environment variables to be set');
+        new Config('FakeReporter');
+
+        // Set empty required ENV variable
+        putenv('QASE_API_TOKEN=');
+        $this->expectExceptionMessage('reporter needs the following environment variables to be set');
+        new Config('FakeReporter');
     }
 }
