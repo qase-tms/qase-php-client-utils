@@ -15,6 +15,7 @@ class Config
     private string $reporterName;
     private bool $isReportingEnabled;
     private string $projectCode;
+    private ?string $runName;
     private string $runDescription;
     private string $baseUrl;
     private string $apiToken;
@@ -41,6 +42,7 @@ class Config
         $this->baseUrl = getenv('QASE_API_BASE_URL');
         $this->apiToken = getenv('QASE_API_TOKEN');
         $this->projectCode = getenv('QASE_PROJECT_CODE');
+        $this->runName = getenv('QASE_RUN_NAME') ?: null;
         $this->runDescription = $this->defineRunDescription();
         $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
         $this->isLoggingEnabled = getenv('QASE_LOGGING') === '1' || getenv("QASE_LOGGING") === false;
@@ -58,6 +60,11 @@ class Config
     public function getProjectCode(): string
     {
         return $this->projectCode;
+    }
+
+    public function getRunName(): ?string
+    {
+        return $this->runName;
     }
 
     public function getRunDescription(): string

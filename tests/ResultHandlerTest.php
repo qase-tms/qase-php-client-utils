@@ -57,6 +57,46 @@ class ResultHandlerTest extends TestCase
         $this->assertNull($response);
     }
 
+    public function testRunName()
+    {
+        $testingRunName = 'testing Run Name';
+
+        $repository = $this->createRepository();
+        $repository->getRunsApi()->expects($this->once())
+            ->method('createRun')
+            ->with(
+                $this->anything(),
+                $this->callback(function ($runBody) use ($testingRunName) {
+                    return $testingRunName === $runBody->getTitle();
+                })
+            );
+        $handler = new ResultHandler(
+            $repository,
+            $this->createConverter(),
+            $this->createLogger()
+        );
+        $handler->createRunId('PRG', null, '', $testingRunName);
+    }
+
+    public function testDefaultRunName()
+    {
+        $repository = $this->createRepository();
+        $repository->getRunsApi()->expects($this->once())
+            ->method('createRun')
+            ->with(
+                $this->anything(),
+                $this->callback(function ($runBody) {
+                    return substr_compare($runBody->getTitle(), 'Automated run 20', 0, 16) == 0;
+                })
+            );
+        $handler = new ResultHandler(
+            $repository,
+            $this->createConverter(),
+            $this->createLogger()
+        );
+        $handler->createRunId('PRG', null, '', null);
+    }
+
     /**
      * @throws ApiException
      */
@@ -78,7 +118,7 @@ class ResultHandlerTest extends TestCase
             $this->createConverter(),
             $this->createLogger()
         );
-        $handler->createRunId('PRG', null, $testingDescription);
+        $handler->createRunId('PRG', null, $testingDescription, null);
     }
 
     private function createRepository(): Repository

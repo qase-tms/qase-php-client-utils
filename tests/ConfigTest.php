@@ -39,6 +39,29 @@ class ConfigTest extends TestCase
         $this->assertEquals('FakeReporter automated run', $config->getRunDescription());
     }
 
+    public function testRunName()
+    {
+        putenv('QASE_RUN_NAME=Qase run name');
+        $config = new Config('FakeReporter');
+        $this->assertEquals('Qase run name', $config->getRunName());
+    }
+
+    public function testEmptyRunName()
+    {
+        // Set empty value
+        putenv('QASE_RUN_NAME=');
+        $config = new Config('FakeReporter');
+        $this->assertSame(null, $config->getRunName());
+    }
+
+    public function testUndefinedRunName()
+    {
+        // Unset ENV variable
+        putenv('QASE_RUN_NAME');
+        $config = new Config('FakeReporter');
+        $this->assertSame(null, $config->getRunName());
+    }
+
     public function testRequiredParamsValidation()
     {
         // Unset required ENV variable
