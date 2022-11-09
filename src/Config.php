@@ -40,7 +40,7 @@ class Config
         $this->rootSuiteTitle = getenv('QASE_ROOT_SUITE_TITLE') ?: null;
 
         $this->runId = getenv('QASE_RUN_ID') ? (int)getenv('QASE_RUN_ID') : null;
-        $this->completeRunAfterSubmit = is_null($this->runId) || getenv('QASE_RUN_COMPLETE') === '1';
+        $this->completeRunAfterSubmit = getenv('QASE_RUN_COMPLETE') === '1' || getenv("QASE_RUN_COMPLETE") === false;
     }
 
     public function isReportingEnabled(): bool
