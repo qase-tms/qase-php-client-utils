@@ -20,7 +20,7 @@ class ConfigTest extends TestCase
     {
         putenv('QASE_RUN_DESCRIPTION=Qase run description');
         $config = new Config('FakeReporter');
-        $this->assertEquals('Qase run description', $config->getRunDescription());
+        $this->assertSame('Qase run description', $config->getRunDescription());
     }
 
     public function testEmptyRunDescription()
@@ -28,7 +28,7 @@ class ConfigTest extends TestCase
         // Set empty value
         putenv('QASE_RUN_DESCRIPTION=');
         $config = new Config('FakeReporter');
-        $this->assertEquals('', $config->getRunDescription());
+        $this->assertSame('', $config->getRunDescription());
     }
 
     public function testDefaultRunDescription()
@@ -36,14 +36,14 @@ class ConfigTest extends TestCase
         // Unset ENV variable
         putenv('QASE_RUN_DESCRIPTION');
         $config = new Config('FakeReporter');
-        $this->assertEquals('FakeReporter automated run', $config->getRunDescription());
+        $this->assertSame('FakeReporter automated run', $config->getRunDescription());
     }
 
     public function testRunName()
     {
         putenv('QASE_RUN_NAME=Qase run name');
         $config = new Config('FakeReporter');
-        $this->assertEquals('Qase run name', $config->getRunName());
+        $this->assertSame('Qase run name', $config->getRunName());
     }
 
     public function testEmptyRunName()
