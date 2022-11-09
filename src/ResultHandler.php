@@ -52,8 +52,8 @@ class ResultHandler
             $runId = $this->createRunId(
                 $runResult->getConfig()->getProjectCode(),
                 $runResult->getConfig()->getEnvironmentId(),
-                $runResult->getConfig()->getRunDescription(),
-                $runResult->getConfig()->getRunName()
+                $runResult->getConfig()->getRunName(),
+                $runResult->getConfig()->getRunDescription()
             );
         }
 
@@ -81,7 +81,7 @@ class ResultHandler
     /**
      * @throws ApiException
      */
-    private function createRunId(string $projectCode, ?int $environmentId, string $description, ?string $name): int
+    private function createRunId(string $projectCode, ?int $environmentId, ?string $name, string $description): int
     {
         $runName = $name ?: 'Automated run ' . date('Y-m-d H:i:s');
         $runBody = new RunCreate([
