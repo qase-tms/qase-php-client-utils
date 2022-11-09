@@ -36,11 +36,11 @@ class Config
         $this->apiToken = getenv('QASE_API_TOKEN') ?: null;
         $this->projectCode = getenv('QASE_PROJECT_CODE') ?: null;
         $this->environmentId = getenv('QASE_ENVIRONMENT_ID') ? (int)getenv('QASE_ENVIRONMENT_ID') : null;
-        $this->isLoggingEnabled = getenv('QASE_LOGGING') === '1' || getenv("QASE_LOGGING") === false;
+        $this->isLoggingEnabled = getenv('QASE_LOGGING') === '1' || getenv('QASE_LOGGING') === false;
         $this->rootSuiteTitle = getenv('QASE_ROOT_SUITE_TITLE') ?: null;
 
         $this->runId = getenv('QASE_RUN_ID') ? (int)getenv('QASE_RUN_ID') : null;
-        $this->completeRunAfterSubmit = getenv('QASE_RUN_COMPLETE') === '1' || getenv("QASE_RUN_COMPLETE") === false;
+        $this->completeRunAfterSubmit = getenv('QASE_RUN_COMPLETE') === '1' || getenv('QASE_RUN_COMPLETE') === false;
     }
 
     public function isReportingEnabled(): bool
