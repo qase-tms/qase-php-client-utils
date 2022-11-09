@@ -49,12 +49,7 @@ class ResultHandler
         if ($runResult->getConfig()->getRunId()) {
             $runId = $runResult->getConfig()->getRunId();
         } else {
-            $runId = $this->createRunId(
-                $runResult->getConfig()->getProjectCode(),
-                $runResult->getConfig()->getEnvironmentId(),
-                $runResult->getConfig()->getRunName(),
-                $runResult->getConfig()->getRunDescription()
-            );
+            $runId = $this->createRunId($runResult);
         }
 
         $this->logger->write("publishing results for run #{$runId}... ");
@@ -81,19 +76,19 @@ class ResultHandler
     /**
      * @throws ApiException
      */
-    private function createRunId(string $projectCode, ?int $environmentId, ?string $name, string $description): int
+    private function createRunId(RunResult $runResult): int
     {
-        $runName = $name ?: 'Automated run ' . date('Y-m-d H:i:s');
+        $runName = $runResult->getConfig()->getRunName() ?: 'Automated run ' . date('Y-m-d H:i:s');
         $runBody = new RunCreate([
             "title" => $runName,
-            "description" => $description,
+            "description" => $runResult->getConfig()->getRunDescription(),
             'isAutotest' => true,
-            'environmentId' => $environmentId,
+            'environmentId' => $runResult->getConfig()->getEnvironmentId(),
         ]);
 
         $this->logger->write("creating run '{$runName}'... ");
 
-        $response = $this->repo->getRunsApi()->createRun($projectCode, $runBody);
+        $response = $this->repo->getRunsApi()->createRun($runResult->getConfig()->getProjectCode(), $runBody);
 
         if ($response->getResult() === null) {
             throw new \RuntimeException('Could not create run');
