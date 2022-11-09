@@ -46,11 +46,7 @@ class ResultHandler
      */
     private function submit(RunResult $runResult, array $bulkResults): Response
     {
-        if ($runResult->getConfig()->getRunId()) {
-            $runId = $runResult->getConfig()->getRunId();
-        } else {
-            $runId = $this->createRunId($runResult);
-        }
+        $runId = $runResult->getConfig()->getRunId() ?: $this->createRunId($runResult);
 
         $this->logger->write("publishing results for run #{$runId}... ");
 
