@@ -107,7 +107,7 @@ class Config
         return $this->rootSuiteTitle;
     }
 
-    public function validate(): void
+    private function validate(): void
     {
         foreach (self::REQUIRED_PARAMS as $paramName) {
             if (!getenv($paramName)) {
