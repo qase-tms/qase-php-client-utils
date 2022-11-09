@@ -81,7 +81,7 @@ class ResultHandler
     /**
      * @throws ApiException
      */
-    public function createRunId(string $projectCode, ?int $environmentId, string $description, ?string $name): int
+    private function createRunId(string $projectCode, ?int $environmentId, string $description, ?string $name): int
     {
         $runName = $name ?: 'Automated run ' . date('Y-m-d H:i:s');
         $runBody = new RunCreate([

@@ -59,9 +59,14 @@ class ResultHandlerTest extends TestCase
 
     public function testRunName()
     {
+        // Arrange
         $testingRunName = 'testing Run Name';
-
+        $config = $this->createConfig();
+        $config->method('getRunName')->willReturn($testingRunName);
+        $runResult = $this->createRunResultWithData($config);
         $repository = $this->createRepository();
+
+        // Assert using callback
         $repository->getRunsApi()->expects($this->once())
             ->method('createRun')
             ->with(
@@ -70,17 +75,20 @@ class ResultHandlerTest extends TestCase
                     return $testingRunName === $runBody->getTitle();
                 })
             );
-        $handler = new ResultHandler(
-            $repository,
-            $this->createConverter(),
-            $this->createLogger()
-        );
-        $handler->createRunId('PRG', null, '', $testingRunName);
+
+        // Act
+        $this->runResultsHandler($runResult, $repository);
     }
 
     public function testDefaultRunName()
     {
+        // Arrange
+        $config = $this->createConfig();
+        $config->method('getRunName')->willReturn(null);
+        $runResult = $this->createRunResultWithData($config);
         $repository = $this->createRepository();
+
+        // Assert using callback
         $repository->getRunsApi()->expects($this->once())
             ->method('createRun')
             ->with(
@@ -89,12 +97,9 @@ class ResultHandlerTest extends TestCase
                     return substr_compare($runBody->getTitle(), 'Automated run 20', 0, 16) == 0;
                 })
             );
-        $handler = new ResultHandler(
-            $repository,
-            $this->createConverter(),
-            $this->createLogger()
-        );
-        $handler->createRunId('PRG', null, '', null);
+
+        // Act
+        $this->runResultsHandler($runResult, $repository);
     }
 
     /**
@@ -102,9 +107,14 @@ class ResultHandlerTest extends TestCase
      */
     public function testRunDescription(): void
     {
+        // Arrange
         $testingDescription = 'testing Description';
-
+        $config = $this->createConfig();
+        $config->method('getRunDescription')->willReturn($testingDescription);
+        $runResult = $this->createRunResultWithData($config);
         $repository = $this->createRepository();
+
+        // Assert using callback
         $repository->getRunsApi()->expects($this->once())
             ->method('createRun')
             ->with(
@@ -113,12 +123,9 @@ class ResultHandlerTest extends TestCase
                     return $testingDescription === $runBody->getDescription();
                 })
             );
-        $handler = new ResultHandler(
-            $repository,
-            $this->createConverter(),
-            $this->createLogger()
-        );
-        $handler->createRunId('PRG', null, $testingDescription, null);
+
+        // Act
+        $this->runResultsHandler($runResult, $repository);
     }
 
     private function createRepository(): Repository
@@ -159,7 +166,7 @@ class ResultHandlerTest extends TestCase
 
     private function createConfig(string $projectCode = 'PRJ', ?int $runId = null): Config
     {
-        $config = $this->getMockBuilder(Config::class)->disableOriginalConstructor()->getMock();
+        $config = $this->createMock(Config::class);
         $config->method('getRunId')->willReturn($runId);
         $config->method('getProjectCode')->willReturn($projectCode);
         $config->method('getEnvironmentId')->willReturn(null);
@@ -167,14 +174,27 @@ class ResultHandlerTest extends TestCase
         return $config;
     }
 
-    private function runResultsHandler(RunResult $runResult): ?\Qase\Client\Model\Response
+    private function runResultsHandler(RunResult $runResult, ?Repository $repository = null): ?\Qase\Client\Model\Response
     {
         $handler = new ResultHandler(
-            $this->createRepository(),
+            $repository ?: $this->createRepository(),
             $this->createConverter(),
             $this->createLogger()
         );
 
         return $handler->handle($runResult, '');
+    }
+
+    private function createRunResultWithData(Config $config): RunResult
+    {
+        $runResult = new RunResult($config);
+        $runResult->addResult([
+            'status' => 'passed',
+            'time' => 123,
+            'stacktrace' => '',
+            'full_test_name' => 'Tests\SomeTest::testImportantStuff',
+        ]);
+
+        return $runResult;
     }
 }
