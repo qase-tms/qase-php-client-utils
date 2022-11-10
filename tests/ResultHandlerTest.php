@@ -94,7 +94,7 @@ class ResultHandlerTest extends TestCase
             ->with(
                 $this->anything(),
                 $this->callback(function ($runBody) {
-                    return substr_compare($runBody->getTitle(), 'Automated run 20', 0, 16) == 0;
+                    return strpos($runBody->getTitle(), 'Automated run') === 0;
                 })
             );
 
