@@ -9,8 +9,10 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Qase\Client\Api\ResultsApi;
 use Qase\Client\Api\RunsApi;
+use Qase\Client\ApiException;
 use Qase\Client\Model\IdResponse;
 use Qase\Client\Model\IdResponseAllOfResult;
+use Qase\PhpClientUtils\Config;
 use Qase\PhpClientUtils\ConsoleLogger;
 use Qase\PhpClientUtils\Repository;
 use Qase\PhpClientUtils\ResultHandler;
@@ -24,7 +26,7 @@ class ResultHandlerTest extends TestCase
      */
     public function testSuccessfulHandling(?int $runId, string $testName): void
     {
-        $runResult = new RunResult('PRJ', $runId, true, null);
+        $runResult = new RunResult($this->createConfig('PRJ', $runId));
         $runResult->addResult([
             'status' => 'passed',
             'time' => 123,
@@ -37,15 +39,6 @@ class ResultHandlerTest extends TestCase
         $this->assertTrue($response->getStatus());
     }
 
-    public function testHandlingWithNoResults(): void
-    {
-        $runResult = new RunResult('PRJ', 1, true, null);
-
-        $response = $this->runResultsHandler($runResult);
-
-        $this->assertNull($response);
-    }
-
     public function runIdDataProvider(): array
     {
         return [
@@ -53,6 +46,86 @@ class ResultHandlerTest extends TestCase
             [10, 'testAwesomeStuff'],
             [null, 'testImportantStuff']
         ];
+    }
+
+    public function testHandlingWithNoResults(): void
+    {
+        $runResult = new RunResult($this->createConfig());
+
+        $response = $this->runResultsHandler($runResult);
+
+        $this->assertNull($response);
+    }
+
+    public function testRunName()
+    {
+        // Arrange
+        $testingRunName = 'testing Run Name';
+        $config = $this->createConfig();
+        $config->method('getRunName')->willReturn($testingRunName);
+        $runResult = $this->createRunResultWithData($config);
+        $repository = $this->createRepository();
+
+        // Assert using callback
+        $repository->getRunsApi()->expects($this->once())
+            ->method('createRun')
+            ->with(
+                $this->anything(),
+                $this->callback(function ($runBody) use ($testingRunName) {
+                    return $testingRunName === $runBody->getTitle();
+                })
+            );
+
+        // Act
+        $this->runResultsHandler($runResult, $repository);
+    }
+
+    public function testDefaultRunName()
+    {
+        // Arrange
+        $config = $this->createConfig();
+        $config->method('getRunName')->willReturn(null);
+        $runResult = $this->createRunResultWithData($config);
+        $repository = $this->createRepository();
+
+        // Assert using callback
+        $repository->getRunsApi()->expects($this->once())
+            ->method('createRun')
+            ->with(
+                $this->anything(),
+                $this->callback(function ($runBody) {
+                    return strpos($runBody->getTitle(), 'Automated run') === 0;
+                })
+            );
+
+        // Act
+        $this->runResultsHandler($runResult, $repository);
+    }
+
+    /**
+     * @throws ApiException
+     */
+    public function testRunDescription(): void
+    {
+        // Arrange
+        $testingDescription = 'testing Description';
+        $config = $this->createConfig();
+        $config->method('getRunDescription')->willReturn($testingDescription);
+        $runResult = $this->createRunResultWithData($config);
+        $repository = $this->createRepository();
+
+        // Assert using callback
+        $repository->getRunsApi()->expects($this->once())
+            ->method('createRun')
+            ->with(
+                $this->anything(),
+                $this->callback(function ($runBody) use ($testingDescription) {
+                    return $testingDescription === $runBody->getDescription();
+                })
+            );
+
+        // Act
+        $this->runResultsHandler($runResult, $repository);
     }
 
     private function createRepository(): Repository
@@ -91,14 +164,37 @@ class ResultHandlerTest extends TestCase
         return new ResultsConverter($this->createLogger());
     }
 
-    private function runResultsHandler(RunResult $runResult): ?\Qase\Client\Model\Response
+    private function createConfig(string $projectCode = 'PRJ', ?int $runId = null): Config
+    {
+        $config = $this->createMock(Config::class);
+        $config->method('getRunId')->willReturn($runId);
+        $config->method('getProjectCode')->willReturn($projectCode);
+        $config->method('getEnvironmentId')->willReturn(null);
+
+        return $config;
+    }
+
+    private function runResultsHandler(RunResult $runResult, ?Repository $repository = null): ?\Qase\Client\Model\Response
     {
         $handler = new ResultHandler(
-            $this->createRepository(),
+            $repository ?: $this->createRepository(),
             $this->createConverter(),
             $this->createLogger()
         );
 
         return $handler->handle($runResult, '');
+    }
+
+    private function createRunResultWithData(Config $config): RunResult
+    {
+        $runResult = new RunResult($config);
+        $runResult->addResult([
+            'status' => 'passed',
+            'time' => 123,
+            'stacktrace' => '',
+            'full_test_name' => 'Tests\SomeTest::testImportantStuff',
+        ]);
+
+        return $runResult;
     }
 }
